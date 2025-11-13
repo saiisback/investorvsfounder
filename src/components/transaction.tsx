@@ -1,91 +1,39 @@
+'use client';
+
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
-
-interface Transaction {
-  id: string;
-  name: string;
-  amount: string;
-  date: string;
-  time: string;
-  category: string;
-  icon: string;
-  iconBg: string;
-}
+import { useApp } from '@/context/AppContext';
 
 interface TransactionListProps {
   totalAmount?: string;
   month?: string;
-  transactions?: Transaction[];
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({
   totalAmount = "12,134.33",
   month = "May",
-  transactions = [
+}) => {
+  const { transactions } = useApp();
+
+  // Calculate total for the current month
+  const currentMonthTotal = transactions
+    .filter((t) => t.type === 'sent')
+    .reduce((sum, t) => sum + t.actualAmount, 0);
+
+  const displayTransactions = transactions.length > 0 ? transactions : [
     {
       id: "1",
-      name: "Mistral  Team",
+      name: "Mistral Team",
       amount: "- $2,500.00",
       date: "Today",
       time: "10:30",
       category: "Team Transfer",
-      icon: "DT",
-      iconBg: "bg-blue-600"
-    },
-    {
-      id: "2", 
-      name: "Dragon Team",
-      amount: "- $1,800.00",
-      date: "Yesterday",
-      time: "14:20",
-      category: "Team Transfer",
-      icon: "DS",
-      iconBg: "bg-purple-600"
-    },
-    {
-      id: "3",
-      name: "Phoenix Team",
-      amount: "- $3,200.00",
-      date: "2 days ago",
-      time: "11:45",
-      category: "Team Transfer",
       icon: "MT",
-      iconBg: "bg-green-600"
+      iconBg: "bg-blue-600",
+      type: 'sent' as const,
+      actualAmount: 2500
     },
-    {
-      id: "4",
-      name: "Lynx Team",
-      amount: "- $4,100.00",
-      date: "3 days ago",
-      time: "09:15",
-      category: "Team Transfer",
-      icon: "ST",
-      iconBg: "bg-red-600"
-    },
-    {
-      id: "5",
-      name: "Phoenix Team",
-      amount: "- $1,200.00",
-      date: "1 week ago",
-      time: "16:00",
-      category: "Team Transfer",
-      icon: "PP",
-      iconBg: "bg-orange-600"
-    },
-    {
-      id: "6",
-      name: "Dragon Team",
-      amount: "- $2,750.00",
-      date: "1 week ago",
-      time: "13:30",
-
-
-      category: "Team Transfer",
-      icon: "DT",
-      iconBg: "bg-purple-600"
-    }
-  ]
-}) => {
+  ];
   return (
     <div className="px-6 py-4">
       {/* Transaction Overview Card */}
@@ -94,6 +42,9 @@ const TransactionList: React.FC<TransactionListProps> = ({
           <div>
             <h2 className="text-[#FDFEFF] text-xl font-bold mb-1">Transaction</h2>
             <p className="text-[#9CA3AF] text-sm">Round: Seed Funding</p>
+            <p className="text-[#C9F56A] text-xs mt-1">
+              Total Sent: ${currentMonthTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
           </div>
           <div className="flex items-center space-x-2">
             {/* Mini Bar Chart */}
@@ -113,7 +64,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
       {/* Transaction List */}
       <div className="space-y-2">
-        {transactions.map((transaction) => (
+        {displayTransactions.map((transaction) => (
           <div key={transaction.id} className="bg-zinc-800 rounded-3xl flex items-center justify-between overflow-hidden">
             {/* Left side - Icon and Details */}
             <div className="flex items-center">
@@ -135,7 +86,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
 
             {/* Right side - Amount and Category */}
             <div className="text-right pr-6">
-              <p className="text-[#FDFEFF] font-medium text-base">
+              <p className={`font-medium text-base ${
+                transaction.amount.startsWith('+') 
+                  ? 'text-green-400' 
+                  : transaction.amount.startsWith('-')
+                  ? 'text-[#FDFEFF]'
+                  : 'text-[#FDFEFF]'
+              }`}>
                 {transaction.amount}
               </p>
               <p className="text-[#9CA3AF] text-sm">

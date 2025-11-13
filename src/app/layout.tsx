@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import FooterBar from "@/components/footerbar";
+import { AppProvider } from "@/context/AppContext";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -25,9 +26,11 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} antialiased`}
       >
-        <Navbar />
-        {children}
-        <FooterBar />
+        <AppProvider>
+          <Navbar />
+          {children}
+          <FooterBar />
+        </AppProvider>
       </body>
     </html>
   );
